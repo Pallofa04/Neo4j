@@ -10,7 +10,7 @@ MERGE (h:Habitatge {Id_Llar: row.Id_Llar})
 SET h.Municipi = row.Municipi,
     h.Any_Padro = toInteger(row.Any_Padro),
     h.Carrer = row.Carrer,
-    h.Numero = row.Numero;
+    h.Numero = toInteger(row.Numero);
 
 // Carrega de dades de INDIVIDUAL
 LOAD CSV WITH HEADERS FROM 'file:///INDIVIDUAL.csv' AS row
