@@ -1,0 +1,42 @@
+// Creació de constraints i indexos
+CREATE CONSTRAINT UniqueIdLlarConstraint IF NOT EXISTS FOR (h:Habitatge) 
+REQUIRE h.Id_Llar IS UNIQUE;
+CREATE CONSTRAINT UniqueIndividualIdConstraint IF NOT EXISTS FOR (i:Individual) 
+REQUIRE i.Id IS UNIQUE;
+// Carrega de dades de HABITATGES
+LOAD CSV WITH HEADERS FROM 'file:///HABITATGES.csv' AS row
+WITH row WHERE NOT row.Id_Llar IS NULL
+MERGE (h:Habitatge {Id_Llar: row.Id_Llar})
+SET h.Municipi = row.Municipi,
+    h.Any_Padro = toInteger(row.Any_Padro),
+    h.Carrer = row.Carrer,
+    h.Numero = row.Numero;
+
+// Carrega de dades de INDIVIDUAL
+LOAD CSV WITH HEADERS FROM 'file:///INDIVIDUAL.csv' AS row
+WITH row WHERE NOT row.Id IS NULL
+MERGE (i:Individual {Id: row.Id})
+SET i.Year = toInteger(row.Year),
+    i.name = row.name,
+    i.surname = row.surname,
+    i.second_surname = row.second_surname;
+
+// Carrega de dades de VIU
+LOAD CSV WITH HEADERS FROM 'file:///VIU.csv' AS row
+WITH row WHERE NOT row.IND IS NULL AND NOT row.HOUSE_ID IS NULL
+MATCH (i:Individual {Id: row.IND})
+MATCH (h:Habitatge {Id_Llar: row.HOUSE_ID})
+MERGE (i)-[:VIU {Location: row.Location, Year: toInteger(row.Year)}]->(h);
+
+// Carrega de dades de SAME_AS
+LOAD CSV WITH HEADERS FROM 'file:///SAME_AS.csv' AS row
+MATCH (a:Individual {Id: row.Id_A})
+MATCH (b:Individual {Id: row.Id_B})
+MERGE (a)-[:SAME_AS]->(b);
+
+// Carrega de dades de FAMILIA
+LOAD CSV WITH HEADERS FROM 'file:///FAMILIA.csv' AS row
+MATCH (a:Individual)
+MATCH (b:Individual)
+WHERE a.Id = row.ID_1 AND b.Id = row.ID_2
+MERGE (a)-[:FAMILIA {Relacio: row.Relacio, Relacio_Harmonitzada: row.Relacio_Harmonitzada}]->(b);
