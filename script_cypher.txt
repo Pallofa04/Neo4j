@@ -5,7 +5,7 @@ CREATE CONSTRAINT UniqueIndividualIdConstraint IF NOT EXISTS FOR (i:Individual)
 REQUIRE i.Id IS UNIQUE;
 // Carrega de dades de HABITATGES
 LOAD CSV WITH HEADERS FROM 'file:///HABITATGES.csv' AS row
-WITH row WHERE NOT row.Id_Llar IS NULL
+WITH row WHERE NOT row.Id_Llar IS NULL AND NOT row.Municipi IS NULL
 MERGE (h:Habitatge {Id_Llar: row.Id_Llar})
 SET h.Municipi = row.Municipi,
     h.Any_Padro = toInteger(row.Any_Padro),
